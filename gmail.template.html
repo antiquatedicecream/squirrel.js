@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>Squirrel with a Kölsch – copy for Gmail</title>
+	<style>
+		body { margin: 0; padding: 20px 24px; font-family: system-ui, sans-serif; color: #222; background: #f6f4ef; }
+		h1 { font-size: 18px; margin: 0 0 12px; }
+		.bar { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; margin-bottom: 14px; }
+		button { font: inherit; padding: 6px 14px; border-radius: 6px; border: 1px solid #bbb; background: #fff; cursor: pointer; }
+		button.primary { background: #1a73e8; border-color: #1a73e8; color: #fff; }
+		#status { font-size: 13px; color: #2e7d32; min-height: 1.2em; }
+		.mail { display: inline-block; background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 18px 22px; }
+		.howto { font-size: 13px; color: #555; max-width: 620px; line-height: 1.5; }
+	</style>
+</head>
+<body>
+	<h1>🐿️🍺 Squirrel with a Kölsch</h1>
+	<div class="bar">
+		<button id="copy" class="primary">Copy for Gmail</button>
+		<button id="copy-text">Copy plain text</button>
+		<label><input id="prost" type="checkbox"> “Prost!” bubble</label>
+		<label><input id="colour" type="checkbox"> Colour</label>
+		<label>Size <select id="size"><option>11</option><option selected>12</option><option>13</option><option>14</option></select> px</label>
+		<span id="status"></span>
+	</div>
+	<div class="mail"><div id="art"></div></div>
+	<p class="howto">
+		<b>Copy for Gmail</b> puts the art on the clipboard as monospace HTML. In Gmail just paste it with ⌘V / Ctrl+V,
+		the alignment survives. If you paste plain text instead, select it in Gmail and pick <i>Fixed width</i>
+		from the font menu, otherwise the proportional font breaks the drawing.
+	</p>
+	<script>
+		const DATA = /*DATA*/null;
+		const PALETTE = {
+			T: '#9a4a1b', F: '#b5651d', P: '#7a3b12', U: '#4a2610', E: '#111111', N: '#2b1a12', W: '#666666',
+			G: '#6f8f9c', O: '#9a9a9a', Y: '#d39a0f', L: '#c0392b', S: '#444444', B: '#a89880'
+		};
+		const $ = ( id ) => document.getElementById( id );
+		const esc = ( ch ) => ch === ' ' ? '&nbsp;' : ch === '<' ? '&lt;' : ch === '>' ? '&gt;' : ch === '&' ? '&amp;' : ch;
+
+		function current() {
+
+			return DATA[ $( 'prost' ).checked ? 'prost' : 'plain' ];
+
+		}
+
+		// Gmail keeps inline styles on paste; every space becomes &nbsp; and every line ends in <br>,
+		// so nothing collapses or wraps.
+		function html() {
+
+			const { lines, classes } = current();
+			const colour = $( 'colour' ).checked;
+			const body = lines.map( ( line, r ) => {
+
+				let out = '', run = '', runColour = null;
+				const flush = () => {
+
+					if ( run ) out += runColour ? `<span style="color:${ runColour }">${ run }</span>` : run;
+					run = '';
+
+				};
+				for ( let c = 0; c < line.length; c ++ ) {
+
+					const ch = line[ c ];
+					if ( ch !== ' ' ) {
+
+						const col = colour ? PALETTE[ classes[ r ][ c ] ] ?? null : null;
+						if ( col !== runColour ) { flush(); runColour = col; }
+
+					}
+
+					run += esc( ch );
+
+				}
+
+				flush();
+				return out;
+
+			} ).join( '<br>' );
+			return `<div style="font-family:'Courier New',Courier,monospace;font-size:${ $( 'size' ).value }px;line-height:1.2;white-space:nowrap">${ body }</div>`;
+
+		}
+
+		function render() {
+
+			$( 'art' ).innerHTML = html();
+
+		}
+
+		async function copyRich() {
+
+			const text = current().lines.join( '\n' );
+			try {
+
+				await navigator.clipboard.write( [ new ClipboardItem( {
+					'text/html': new Blob( [ html() ], { type: 'text/html' } ),
+					'text/plain': new Blob( [ text ], { type: 'text/plain' } )
+				} ) ] );
+
+			} catch ( e ) {
+
+				// file:// or older browsers: copy the rendered selection instead.
+				const range = document.createRange();
+				range.selectNodeContents( $( 'art' ) );
+				const sel = getSelection();
+				sel.removeAllRanges();
+				sel.addRange( range );
+				document.execCommand( 'copy' );
+				sel.removeAllRanges();
+
+			}
+
+			$( 'status' ).textContent = 'Copied – paste it into Gmail.';
+
+		}
+
+		$( 'copy' ).onclick = copyRich;
+		$( 'copy-text' ).onclick = async () => {
+
+			await navigator.clipboard.writeText( current().lines.join( '\n' ) );
+			$( 'status' ).textContent = 'Plain text copied – in Gmail choose “Fixed width” for it.';
+
+		};
+		for ( const id of [ 'prost', 'colour', 'size' ] ) $( id ).onchange = render;
+		render();
+	</script>
+</body>
+</html>

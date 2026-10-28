@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>ASCII preview</title>
+	<style>
+		body { margin: 0; padding: 16px; background: #fff; }
+		.mail { display: inline-block; font-family: 'Courier New', Courier, monospace; font-size: 13px; line-height: 1.2; white-space: pre; color: #222; }
+	</style>
+</head>
+<body>
+	<div id="art" class="mail"></div>
+	<script>
+		fetch( new URLSearchParams( location.search ).get( 'file' ) + '?' + Date.now() ).then( ( r ) => r.text() )
+			.then( ( t ) => { document.getElementById( 'art' ).textContent = t.replace( /\n+$/, '' ); window.__ready = true; } );
+	</script>
+</body>
+</html>

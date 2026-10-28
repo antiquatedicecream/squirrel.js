@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>Squirrel with a Kölsch – three.js → ASCII</title>
+	<style>
+		body { margin: 0; font-family: system-ui, sans-serif; background: #f4f1ea; color: #222; }
+		header { padding: 10px 16px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+		header h1 { font-size: 16px; margin: 0 12px 0 0; }
+		main { display: flex; gap: 16px; padding: 0 16px 16px; align-items: flex-start; }
+		#view { width: 480px; height: 640px; flex: none; border: 1px solid #ccc; background: #fff; }
+		#ascii { margin: 0; padding: 12px; background: #fff; border: 1px solid #ccc;
+			font-family: 'Courier New', Courier, monospace; font-size: 13px; line-height: 1.2; white-space: pre; }
+		#status { font-size: 12px; color: #666; }
+		button { font: inherit; padding: 4px 10px; }
+		input[type=number] { width: 4em; }
+	</style>
+	<script type="importmap">
+		{ "imports": { "three": "./node_modules/three/build/three.module.js", "three/addons/": "./node_modules/three/examples/jsm/" } }
+	</script>
+</head>
+<body>
+	<header>
+		<h1>🐿️ + 🍺 Squirrel with a Kölsch</h1>
+		<label>Columns <input id="cols" type="number" min="24" max="160"></label>
+		<button id="render">Render ASCII from this view</button>
+		<button id="copy-gmail">Copy for Gmail</button>
+		<button id="copy-text">Copy plain text</button>
+		<span id="status"></span>
+	</header>
+	<main>
+		<div id="view"></div>
+		<pre id="ascii"></pre>
+	</main>
+	<script type="module" src="./src/main.js"></script>
+</body>
+</html>

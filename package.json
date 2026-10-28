@@ -1,0 +1,17 @@
+{
+  "name": "squirrel-koelsch",
+  "version": "1.0.0",
+  "description": "Procedural three.js squirrel holding a Kölsch Stange, converted to e-mail-ready ASCII art",
+  "scripts": {
+    "start": "node serve.mjs",
+    "render": "node run.mjs",
+    "build": "python3 polish.py && python3 build.py",
+    "check": "node check-gmail.mjs"
+  },
+  "type": "module",
+  "dependencies": {
+    "playwright": "^1.59.1",
+    "three": "^0.186.1"
+  },
+  "private": true
+}
